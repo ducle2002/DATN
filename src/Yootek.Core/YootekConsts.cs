@@ -1,6 +1,4 @@
-﻿using Yootek.Debugging;
-
-namespace Yootek
+﻿namespace Yootek
 {
     public class YootekConsts
     {
@@ -10,11 +8,11 @@ namespace Yootek
 
         public const bool MultiTenancyEnabled = true;
 
-
+        public const int DefaultPageSize = 10;
+        public const bool AllowTenantsToChangeEmailSettings = false;
         /// <summary>
-        /// Default pass phrase for SimpleStringCipher decrypt/encrypt operations
+        /// Maximum allowed page size for paged requests.
         /// </summary>
-        public static readonly string DefaultPassPhrase =
-            DebugHelper.IsDebug ? "gsKxGZ012HLL3MI5" : "a1cce4ec81c746bea7626e3dded62699";
+        public const int MaxPageSize = 1000;
     }
 }

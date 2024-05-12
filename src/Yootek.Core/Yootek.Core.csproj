@@ -70,7 +70,6 @@
     <PackageReference Include="Twilio" Version="6.15.1" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Common\" />
     <Folder Include="Notificantions\" />
   </ItemGroup>
 </Project>
