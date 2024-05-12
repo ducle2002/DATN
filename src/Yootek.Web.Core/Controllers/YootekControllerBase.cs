@@ -4,16 +4,14 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Yootek.Controllers
 {
-    public abstract class YootekControllerBase: AbpController
+    public abstract class YootekControllerBase : AbpController
     {
+        public static Benchmark mb = new Benchmark();
         protected YootekControllerBase()
         {
             LocalizationSourceName = YootekConsts.LocalizationSourceName;
         }
 
-        protected void CheckErrors(IdentityResult identityResult)
-        {
-            identityResult.CheckErrors(LocalizationManager);
-        }
+
     }
 }

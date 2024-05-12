@@ -13,6 +13,7 @@ using Yootek.Authentication.JwtBearer;
 using Yootek.Configuration;
 using Yootek.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Abp.Runtime.Caching.Redis;
 
 namespace Yootek
 {
@@ -20,7 +21,8 @@ namespace Yootek
          typeof(YootekApplicationModule),
          typeof(YootekEntityFrameworkModule),
          typeof(AbpAspNetCoreModule)
-        ,typeof(AbpAspNetCoreSignalRModule)
+        , typeof(AbpAspNetCoreSignalRModule),
+         typeof(AbpRedisCacheModule)
      )]
     public class YootekWebCoreModule : AbpModule
     {
@@ -41,11 +43,20 @@ namespace Yootek
 
             // Use database for language management
             Configuration.Modules.Zero().LanguageManagement.EnableDbLocalization();
-
             Configuration.Modules.AbpAspNetCore()
                  .CreateControllersForAppServices(
                      typeof(YootekApplicationModule).GetAssembly()
                  );
+            Configuration.Caching.ConfigureAll(cache =>
+            {
+                cache.DefaultSlidingExpireTime = TimeSpan.FromHours(2);
+            });
+
+            //Configuration.Caching.UseRedis(options =>
+            //{
+            //    options.ConnectionString = _appConfiguration["RedisCache:ConnectionString"];
+            //    options.DatabaseId = _appConfiguration.GetValue<int>("RedisCache:DatabaseId");
+            //});
 
             ConfigureTokenAuth();
         }
@@ -59,11 +70,13 @@ namespace Yootek
             tokenAuthConfig.Issuer = _appConfiguration["Authentication:JwtBearer:Issuer"];
             tokenAuthConfig.Audience = _appConfiguration["Authentication:JwtBearer:Audience"];
             tokenAuthConfig.SigningCredentials = new SigningCredentials(tokenAuthConfig.SecurityKey, SecurityAlgorithms.HmacSha256);
-            tokenAuthConfig.Expiration = TimeSpan.FromDays(1);
+            tokenAuthConfig.AccessTokenExpiration = AppConsts.AccessTokenExpiration;
+            tokenAuthConfig.RefreshTokenExpiration = AppConsts.RefreshTokenExpiration;
         }
 
         public override void Initialize()
         {
+         
             IocManager.RegisterAssemblyByConvention(typeof(YootekWebCoreModule).GetAssembly());
         }
 
