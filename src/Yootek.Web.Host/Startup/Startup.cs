@@ -1,22 +1,29 @@
-using System.IO;
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Castle.Facilities.Logging;
 using Abp.AspNetCore;
 using Abp.AspNetCore.Mvc.Antiforgery;
+using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
+using Abp.Dependency;
 using Abp.Extensions;
+using Abp.Json;
+using Castle.Facilities.Logging;
+using CorePush.Apple;
+using CorePush.Google;
+
 using Yootek.Configuration;
 using Yootek.Identity;
-using Abp.AspNetCore.SignalR.Hubs;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
+using System;
+using System.Linq;
+using System.Reflection;
 using System.IO;
 
 namespace Yootek.Web.Host.Startup
@@ -39,16 +46,28 @@ namespace Yootek.Web.Host.Startup
         public void ConfigureServices(IServiceCollection services)
         {
             //MVC
-            services.AddControllersWithViews(options =>
+            services.AddControllersWithViews(
+                options => { options.Filters.Add(new AbpAutoValidateAntiforgeryTokenAttribute()); }
+            ).AddNewtonsoftJson(options =>
             {
-                options.Filters.Add(new AbpAutoValidateAntiforgeryTokenAttribute());
+                options.SerializerSettings.ContractResolver = new AbpMvcContractResolver(IocManager.Instance);
+                options.SerializerSettings.ContractResolver = new AbpMvcContractResolver(IocManager.Instance)
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                };
             });
+
+            //services.Configure<IdentityServerSettings>(Configuration.GetSection("IdentityServerSettings"));
 
             IdentityRegistrar.Register(services);
             AuthConfigurer.Configure(services, _appConfiguration);
 
-            services.AddSignalR();
-
+            services.AddSignalR(e =>
+            {
+                e.MaximumReceiveMessageSize = 204800000;
+                e.EnableDetailedErrors = true;
+            });
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             // Configure CORS for angular2 UI
             services.AddCors(
                 options => options.AddPolicy(
@@ -67,6 +86,58 @@ namespace Yootek.Web.Host.Startup
                 )
             );
 
+            services.AddHttpClient();
+            services.AddHttpClient<FcmSender>();
+            services.AddHttpClient<ApnSender>();
+            // Configure strongly typed settings objects
+            var appSettingsSection = _appConfiguration.GetSection("FcmNotification");
+            
+            //services.Configure<AbpMailKitOptions>(options =>
+            //{
+            //    options.SecureSocketOption = SecureSocketOptions.SslOnConnect;
+            //});
+            
+            //service Session
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(10);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = false;
+                options.User.RequireUniqueEmail = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 8;
+                options.Password.RequiredUniqueChars = 2;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.User.RequireUniqueEmail = false;
+            });
+
+            services.AddCors(
+               options => options.AddPolicy(
+                   _defaultCorsPolicyName,
+                   builder => builder
+                       .WithOrigins(
+                           // App:CorsOrigins in appsettings.json can contain more than one address separated by comma.
+                           _appConfiguration["App:CorsOrigins"]
+                               .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                               .Select(o => o.RemovePostFix("/"))
+                               .ToArray()
+                       )
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
+                       .AllowCredentials()
+               )
+           );
+
             // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             ConfigureSwagger(services);
 
@@ -82,27 +153,38 @@ namespace Yootek.Web.Host.Startup
             );
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app,
+            ILoggerFactory loggerFactory)
         {
-            app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
-
+            app.UseAbp(options => { options.UseAbpRequestLocalization = true; }); // 
+            //app.UseHsts();
+            //app.UseHttpsRedirection();
             app.UseCors(_defaultCorsPolicyName); // Enable CORS!
-
-app.Use(async (context, next) =>                {                    await next();                    if (context.Response.StatusCode == 404                        && !Path.HasExtension(context.Request.Path.Value)                        && !context.Request.Path.Value.StartsWith("/api/services", StringComparison.InvariantCultureIgnoreCase))                    {                        context.Request.Path = "/index.html";                        await next();                    }                });
             app.UseStaticFiles();
 
+            /**
+             * UseStaticFiles
+             * Cấu hình static file trên máy chủ IIS
+             * build sang máy chủ khác cần comment lại
+             */
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(_appConfiguration["PathStaticFile1"])
+            //});
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseAbpRequestLocalization();
 
             app.UseEndpoints(endpoints =>
             {
+                // endpoints.MapHub<BusinessHub>("/business");
                 endpoints.MapHub<AbpCommonHub>("/signalr");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
+                // endpoints.MapHangfireDashboard();
+
             });
 
             // Enable middleware to serve generated Swagger as a JSON endpoint
@@ -114,9 +196,11 @@ app.Use(async (context, next) =>                {                    await next(
                 // specifying the Swagger JSON endpoint.
                 options.SwaggerEndpoint($"/swagger/{_apiVersion}/swagger.json", $"Yootek API {_apiVersion}");
                 options.IndexStream = () => Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream("Yootek.Web.Host.wwwroot.swagger.ui.index.html");
-                options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.
+                    .GetManifestResourceStream("YOOTEK.Web.Host.wwwroot.swagger.ui.index.html");
+                options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.  
             }); // URL: /swagger
+
+            //app.MapSignalR();
         }
 
         private void ConfigureSwagger(IServiceCollection services)
@@ -126,12 +210,12 @@ app.Use(async (context, next) =>                {                    await next(
                 options.SwaggerDoc(_apiVersion, new OpenApiInfo
                 {
                     Version = _apiVersion,
-                    Title = "Yootek API",
-                    Description = "Yootek",
+                    Title = "YOOTEK API",
+                    Description = "YOOTEK",
                     // uncomment if needed TermsOfService = new Uri("https://example.com/terms"),
                     Contact = new OpenApiContact
                     {
-                        Name = "Yootek",
+                        Name = "YOOTEK",
                         Email = string.Empty,
                         Url = new Uri("https://twitter.com/aspboilerplate"),
                     },
