@@ -4,6 +4,7 @@ using Yootek.EntityDb;
 using Yootek.Organizations.Interface;
 using System;
 using System.Collections.Generic;
+using YOOTEK.EntityDb.Citizen;
 
 namespace Yootek.Services.Dto
 {

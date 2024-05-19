@@ -11,7 +11,7 @@ using Abp.Runtime.Session;
 using Abp.UI;
 using Yootek.Authorization.Roles;
 using Yootek.MultiTenancy;
-// using Yootek.EntityDb;
+using Yootek.EntityDb;
 using Abp.Domain.Repositories;
 using Microsoft.Extensions.Configuration;
 using Yootek.Configuration;
@@ -21,7 +21,7 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Net;
 using System.Security.Cryptography;
-using Yootek.EntityDb;
+using YOOTEK.EntityDb.Citizen;
 
 namespace Yootek.Authorization.Users
 {

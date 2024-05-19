@@ -4,6 +4,7 @@ using Yootek.Authorization.Permissions;
 using Yootek.Authorization.Roles;
 using Yootek.Authorization.Users;
 using Yootek.EntityDb;
+using YOOTEK.EntityDb.Citizen;
 using Yootek.MultiTenancy;
 using Yootek.Organizations;
 using Yootek.Organizations.OrganizationStructure;
@@ -26,6 +27,11 @@ namespace Yootek.EntityFrameworkCore
         public virtual DbSet<DeptToUnit> DeptToUnits { get; set; }
         public virtual DbSet<UnitToUnit> UnitToUnits { get; set; }
         public virtual DbSet<DepartmentOrganizationUnit> DepartmentOrganizationUnits { get; set; }
+
+        public virtual DbSet<Citizen> Citizens { get; set; }
+        public virtual DbSet<Meter> Meters { get; set; }
+        public virtual DbSet<MeterType> MeterTypes { get; set; }
+        public virtual DbSet<MeterMonthly> MeterMonthlies { get; set; }
 
         #endregion
 

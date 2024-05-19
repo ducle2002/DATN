@@ -24,6 +24,7 @@ using System.Globalization;
 using Yootek.Common.Enum;
 using Newtonsoft.Json;
 using DocumentFormat.OpenXml.Bibliography;
+using YOOTEK.EntityDb.Citizen;
 using Yootek.Services.Dto;
 
 namespace Yootek.Services

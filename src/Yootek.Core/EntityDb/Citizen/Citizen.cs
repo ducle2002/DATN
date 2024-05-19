@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +7,7 @@ using Abp.Domain.Entities.Auditing;
 using Abp.Organizations;
 using Yootek.Organizations.Interface;
 
-namespace Yootek.EntityDb
+namespace YOOTEK.EntityDb.Citizen
 {
     public enum RELATIONSHIP
     {

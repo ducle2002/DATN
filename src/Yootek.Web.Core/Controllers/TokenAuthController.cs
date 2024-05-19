@@ -35,6 +35,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using NUglify.Helpers;
 
+
 namespace Yootek.Controllers
 {
 
@@ -47,7 +48,7 @@ namespace Yootek.Controllers
         private readonly SignInManager _signInManager;
         private readonly TenantManager _tenantManager;
         private readonly ITenantCache _tenantCache;
-        private readonly IWebUrlService _webUrlService;
+        // private readonly IWebUrlService _webUrlService;
         private readonly ICacheManager _cacheManager;
         private readonly AbpLoginResultTypeHelper _abpLoginResultTypeHelper;
         private readonly TokenAuthConfiguration _configuration;
@@ -66,7 +67,7 @@ namespace Yootek.Controllers
             UserManager userManager,
             TenantManager tenantManager,
             ITenantCache tenantCache,
-            IWebUrlService webUrlService,
+            // IWebUrlService webUrlService,
             AbpLoginResultTypeHelper abpLoginResultTypeHelper,
             TokenAuthConfiguration configuration,
             IExternalAuthConfiguration externalAuthConfiguration,
@@ -92,7 +93,7 @@ namespace Yootek.Controllers
             _externalAuthManager = externalAuthManager;
             _userRegistrationManager = userRegistrationManager;
             _signInManager = signInManager;
-            _webUrlService = webUrlService;
+            // _webUrlService = webUrlService;
             _identityOptions = identityOptions.Value;
             _appConfiguration = configurationAccessor.Configuration;
             _settingManager = settingManager;
