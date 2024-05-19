@@ -1,11 +1,7 @@
-﻿using Abp;
-using Abp.Application.Services;
-using Abp.Application.Services.Dto;
+﻿using Abp.Application.Services;
 using Abp.Authorization;
-using Abp.AutoMapper;
 using Abp.Domain.Repositories;
 using Abp.IdentityFramework;
-using Abp.IO;
 using Abp.Runtime.Session;
 using Abp.UI;
 using Yootek.Authorization;
@@ -14,19 +10,9 @@ using Yootek.Authorization.Users;
 using Yootek.Storage;
 using Yootek.Users.Dto;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using QRCoder;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Yootek.Users
 {
@@ -53,13 +39,13 @@ namespace Yootek.Users
         private readonly UserManager _userManager;
         private readonly RoleManager _roleManager;
         private readonly IRepository<User, long> _userRepository;
-        private readonly IRepository<Role> _roleRepository;
+        // private readonly IRepository<Role> _roleRepository;
         // private readonly IRepository<Reminder, long> _reminderRepos;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IAbpSession _abpSession;
         private readonly LogInManager _logInManager;
-        private readonly IAppFolders _appFolders;
-        private readonly IBinaryObjectManager _binaryObjectManager;
+        // private readonly IAppFolders _appFolders;
+        // private readonly IBinaryObjectManager _binaryObjectManager;
         // private readonly IAppNotifier _appNotifier;
         // private readonly IUserReminderCache _userReminderCache;
         // private readonly INotificationCommunicator _notificationCommunicator;
@@ -70,14 +56,15 @@ namespace Yootek.Users
             // IRepository<Reminder, long> reminderRepos,
             UserManager userManager,
             RoleManager roleManager,
-            IRepository<Role> roleRepository,
+            // IRepository<Role> roleRepository,
             IPasswordHasher<User> passwordHasher,
             IAbpSession abpSession,
-            LogInManager logInManager,
-            IAppFolders appFolders,
+            LogInManager logInManager
+            // IAppFolders appFolders,
             // IAppNotifier appNotifier,
             // INotificationCommunicator notificationCommunicator,
-            IBinaryObjectManager binaryObjectManager)
+            // IBinaryObjectManager binaryObjectManager
+            )
 
         {
             // _userReminderCache = userReminderCache;
@@ -85,13 +72,13 @@ namespace Yootek.Users
             _userManager = userManager;
             _roleManager = roleManager;
             _userRepository = userRepos;
-            _roleRepository = roleRepository;
+            // _roleRepository = roleRepository;
             _passwordHasher = passwordHasher;
             _abpSession = abpSession;
             _logInManager = logInManager;
-            _appFolders = appFolders;
+            // _appFolders = appFolders;
             // _appNotifier = appNotifier;
-            _binaryObjectManager = binaryObjectManager;
+            // _binaryObjectManager = binaryObjectManager;
             // _notificationCommunicator = notificationCommunicator;
         }
 

@@ -7,7 +7,7 @@ using Yootek.EntityDb;
 using YOOTEK.EntityDb.Citizen;
 using Yootek.MultiTenancy;
 using Yootek.Organizations;
-using Yootek.Organizations.OrganizationStructure;
+// using Yootek.Organizations.OrganizationStructure;
 using Yootek.Storage;
 
 
@@ -16,17 +16,17 @@ namespace Yootek.EntityFrameworkCore
     public class YootekDbContext : AbpZeroDbContext<Tenant, Role, User, YootekDbContext>
     {
         #region DbSet
-        public virtual DbSet<SchedulerNotification> SchedulerNotifications { get; set; }
+        // public virtual DbSet<SchedulerNotification> SchedulerNotifications { get; set; }
         
 
-        public virtual DbSet<AppOrganizationUnit> AppOrganizationUnits { get; set; }
+        // public virtual DbSet<AppOrganizationUnit> AppOrganizationUnits { get; set; }
         
-        public virtual DbSet<OrganizationStructureUnit> OrganizationStructureUnits { get; set; }
-        public virtual DbSet<OrganizationStructureDept> OrganizationStructureDepts { get; set; }
-        public virtual DbSet<OrganizationStructureDeptUser> OrganizationStructureDeptUsers { get; set; }
-        public virtual DbSet<DeptToUnit> DeptToUnits { get; set; }
-        public virtual DbSet<UnitToUnit> UnitToUnits { get; set; }
-        public virtual DbSet<DepartmentOrganizationUnit> DepartmentOrganizationUnits { get; set; }
+        // public virtual DbSet<OrganizationStructureUnit> OrganizationStructureUnits { get; set; }
+        // public virtual DbSet<OrganizationStructureDept> OrganizationStructureDepts { get; set; }
+        // public virtual DbSet<OrganizationStructureDeptUser> OrganizationStructureDeptUsers { get; set; }
+        // public virtual DbSet<DeptToUnit> DeptToUnits { get; set; }
+        // public virtual DbSet<UnitToUnit> UnitToUnits { get; set; }
+        // public virtual DbSet<DepartmentOrganizationUnit> DepartmentOrganizationUnits { get; set; }
 
         public virtual DbSet<Citizen> Citizens { get; set; }
         public virtual DbSet<Meter> Meters { get; set; }

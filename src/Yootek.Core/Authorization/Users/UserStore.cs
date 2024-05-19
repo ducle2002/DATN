@@ -20,10 +20,10 @@ namespace Yootek.Authorization.Users
     {
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<User, long> _userRepository;
-        private IRepository<UserPermissionSetting, long> _userPermissionSettingRepository;
-        private ICacheManager _cacheManager;
+        // private IRepository<UserPermissionSetting, long> _userPermissionSettingRepository;
+        // private ICacheManager _cacheManager;
         private readonly IRepository<UserOrganizationUnit, long> _userOrganizationUnitRepository;
-        private readonly IRepository<AppOrganizationUnit, long> _organizationUnitRepository;
+        // private readonly IRepository<AppOrganizationUnit, long> _organizationUnitRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         public UserStore(
             IUnitOfWorkManager unitOfWorkManager,
@@ -35,7 +35,7 @@ namespace Yootek.Authorization.Users
             IRepository<UserClaim, long> userClaimRepository,
             IRepository<UserPermissionSetting, long> userPermissionSettingRepository,
             IRepository<UserOrganizationUnit, long> userOrganizationUnitRepository,
-            IRepository<AppOrganizationUnit, long> organizationUnitRepository,
+            // IRepository<AppOrganizationUnit, long> organizationUnitRepository,
             IRepository<OrganizationUnitRole, long> organizationUnitRoleRepository,
             IRepository<UserToken, long> userTokenRepository)
             : base(unitOfWorkManager,
@@ -52,11 +52,11 @@ namespace Yootek.Authorization.Users
         {
             _roleRepository = roleRepository;
             _userRepository = userRepository;
-            _userPermissionSettingRepository = userPermissionSettingRepository;
+            // _userPermissionSettingRepository = userPermissionSettingRepository;
             _userOrganizationUnitRepository = userOrganizationUnitRepository;
-            _organizationUnitRepository = organizationUnitRepository;
+            // _organizationUnitRepository = organizationUnitRepository;
             _unitOfWorkManager = unitOfWorkManager;
-            _cacheManager = cacheManager;
+            // _cacheManager = cacheManager;
         }
 
         public async Task<List<User>> GetAllUserTenantAsync()
@@ -108,30 +108,30 @@ namespace Yootek.Authorization.Users
         
         }
 
-        public async Task<List<User>> GetAllChatCitizenManagerTenantAsync(long? urbanId, int? tenantId)
-        {
-            try
-            {
-                return await _unitOfWorkManager.WithUnitOfWorkAsync(async () =>
-                {
-                    using (_unitOfWorkManager.Current.SetTenantId(tenantId))
-                    {
-                        var ids = _organizationUnitRepository.GetAll().Where(x =>x.Type == APP_ORGANIZATION_TYPE.CHAT).Select(uou => uou.ParentId).ToList();
-                        var uoIds = _organizationUnitRepository.GetAll().Where(x => ids.Contains(x.Id)).WhereIf(urbanId.HasValue, x => x.ParentId == urbanId).Select(x => x.Id).ToList();
-                        var userIdsInOrganizationUnit = _userOrganizationUnitRepository.GetAll().Where(uou => uoIds.Contains(uou.OrganizationUnitId)).Select(uou => uou.UserId);
-                        var query = _userRepository.GetAll()
-                            .Where(u => userIdsInOrganizationUnit.Contains(u.Id));
-                        return await query.ToListAsync();
-                    }
-                });
-
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-
-        }
+        // public async Task<List<User>> GetAllChatCitizenManagerTenantAsync(long? urbanId, int? tenantId)
+        // {
+        //     try
+        //     {
+        //         return await _unitOfWorkManager.WithUnitOfWorkAsync(async () =>
+        //         {
+        //             using (_unitOfWorkManager.Current.SetTenantId(tenantId))
+        //             {
+        //                 var ids = _organizationUnitRepository.GetAll().Where(x =>x.Type == APP_ORGANIZATION_TYPE.CHAT).Select(uou => uou.ParentId).ToList();
+        //                 var uoIds = _organizationUnitRepository.GetAll().Where(x => ids.Contains(x.Id)).WhereIf(urbanId.HasValue, x => x.ParentId == urbanId).Select(x => x.Id).ToList();
+        //                 var userIdsInOrganizationUnit = _userOrganizationUnitRepository.GetAll().Where(uou => uoIds.Contains(uou.OrganizationUnitId)).Select(uou => uou.UserId);
+        //                 var query = _userRepository.GetAll()
+        //                     .Where(u => userIdsInOrganizationUnit.Contains(u.Id));
+        //                 return await query.ToListAsync();
+        //             }
+        //         });
+        //
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         return null;
+        //     }
+        //
+        // }
 
         public async Task<List<User>> GetUserByOrganizationUnitIdAsync(long organizationUnitId, int? tenantId)
         {
